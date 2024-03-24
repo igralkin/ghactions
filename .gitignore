@@ -1,0 +1,9 @@
+.idea
+.env
+.venv
+env/
+__pycache__/
+.DS_Store
+debug_emails/
+.coverage
+/pg_data
