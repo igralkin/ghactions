@@ -13,7 +13,7 @@ Django
 
 установить Docker и Docker Compose https://docs.docker.com/engine/install/
 
-клонировать этот репозиторий git clone git@gitlab.com:study4180652/edu_app.git
+клонировать этот репозиторий 
 
 перейти в корень проекта и выполнить команды
 docker compose build
