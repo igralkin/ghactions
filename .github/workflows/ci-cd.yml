@@ -1,0 +1,33 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy to Server
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/ghactions
+          chmod 600 ~/.ssh/ghactions
+          ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts || true
+
+      - name: Deploy application
+        run: |
+          ssh -i ~/.ssh/ghactions ${{ secrets.DEPLOY_USER }}@${{ secrets.HOST }} << 'EOF' || exit 1
+          set -e
+          mkdir -p ${{ secrets.DEPLOY_PATH }}
+          cd ${{ secrets.DEPLOY_PATH }}
+          git pull origin main
+          docker-compose down || true
+          docker-compose up -d --build
+          EOF
