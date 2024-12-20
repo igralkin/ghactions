@@ -20,7 +20,7 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/ghactions
           chmod 600 ~/.ssh/ghactions
           ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts || true
-          
+
       - name: Test SSH connection
         run: |
           ssh -v -i ~/.ssh/ghactions ${{ secrets.DEPLOY_USER }}@${{ secrets.HOST }} "echo 'SSH connection successful'"
@@ -31,8 +31,9 @@ jobs:
           set -e
           mkdir -p ${{ secrets.DEPLOY_PATH }}
           cd ${{ secrets.DEPLOY_PATH }}
+          
           if [ ! -d ".git" ]; then
-            echo "Initializing new Git repository..."
+            echo "Initializing new Git repository for ${{ secrets.REPOSITORY_URL }}"
             git init
             git remote add origin ${{ secrets.REPOSITORY_URL }}
             git pull origin main
