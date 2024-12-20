@@ -20,6 +20,10 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/ghactions
           chmod 600 ~/.ssh/ghactions
           ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts || true
+          
+      - name: Test SSH connection
+        run: |
+          ssh -v -i ~/.ssh/ghactions ${{ secrets.DEPLOY_USER }}@${{ secrets.HOST }} "echo 'SSH connection successful'"
 
       - name: Deploy application
         run: |
