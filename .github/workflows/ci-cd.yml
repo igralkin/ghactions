@@ -27,7 +27,6 @@ jobs:
           set -e
           mkdir -p ${{ secrets.DEPLOY_PATH }}
           cd ${{ secrets.DEPLOY_PATH }}
-          # Проверка наличия .git директории
           if [ ! -d ".git" ]; then
             echo "Initializing new Git repository..."
             git init
