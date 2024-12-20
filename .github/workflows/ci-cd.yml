@@ -34,7 +34,7 @@ jobs:
         run: |
           for i in {1..5}; do
             echo "Attempt $i to deploy application..."
-            ssh -v -i ~/.ssh/ghactions ${{ secrets.DEPLOY_USER }}@${{ secrets.HOST }}
+            ssh -v -i ~/.ssh/ghactions ${{ secrets.DEPLOY_USER }}@${{ secrets.HOST }} << 'EOF'
             set -e
             mkdir -p ${{ secrets.DEPLOY_PATH }}
             cd ${{ secrets.DEPLOY_PATH }}
@@ -59,12 +59,14 @@ jobs:
             DB_NAME=${{ secrets.DB_NAME }} \
             docker compose up -d --build
             EOF
-            
-            if [ $? -eq 0 ]; then
-              echo "Deployment successful. Exiting loop."
-              break
-            fi
+          
+              if [ $? -eq 0 ]; then
+                echo "Deployment successful. Exiting loop."
+                break
+              fi
 
-            echo "Deployment failed. Retrying in 30 seconds..."
-            sleep 30
-          done
+              echo "Deployment failed. Retrying in 60 seconds..."
+              sleep 60
+            done
+  
+  
