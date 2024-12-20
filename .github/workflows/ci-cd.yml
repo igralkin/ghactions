@@ -38,7 +38,7 @@ jobs:
             git remote add origin ${{ secrets.REPOSITORY_URL }}
             git pull origin main
           else
-            echo "Git repository found, pulling latest changes..."
+            echo "Git repository ${{ secrets.REPOSITORY_URL }} found, pulling latest changes..."
             git pull origin main
           fi
           docker-compose down || true
