@@ -23,11 +23,20 @@ jobs:
 
       - name: Deploy application
         run: |
-          ssh -v -i ~/.ssh/ghactions ${{ secrets.DEPLOY_USER }}@${{ secrets.HOST }} << 'EOF' || exit 1
+          ssh -v -i ~/.ssh/ghactions ${{ secrets.DEPLOY_USER }}@${{ secrets.HOST }} << 'EOF'
           set -e
           mkdir -p ${{ secrets.DEPLOY_PATH }}
           cd ${{ secrets.DEPLOY_PATH }}
-          git pull origin main
+          # Проверка наличия .git директории
+          if [ ! -d ".git" ]; then
+            echo "Initializing new Git repository..."
+            git init
+            git remote add origin <your-repository-url>
+            git pull origin main
+          else
+            echo "Git repository found, pulling latest changes..."
+            git pull origin main
+          fi
           docker-compose down || true
           docker-compose up -d --build
           EOF
