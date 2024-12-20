@@ -38,7 +38,7 @@ jobs:
             set -e
             mkdir -p ${{ secrets.DEPLOY_PATH }}
             cd ${{ secrets.DEPLOY_PATH }}
-
+            
             if [ ! -d ".git" ]; then
               echo "Initializing new Git repository for ${{ secrets.REPOSITORY_URL }}"
               git init
@@ -48,17 +48,18 @@ jobs:
               echo "Git repository ${{ secrets.REPOSITORY_URL }} found, pulling latest changes..."
               git pull origin main
             fi
-
+            
             DB_USER=${{ secrets.DB_USER }} \
             DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
             DB_NAME=${{ secrets.DB_NAME }} \
             docker compose down || true
+            
             DB_USER=${{ secrets.DB_USER }} \
             DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
             DB_NAME=${{ secrets.DB_NAME }} \
             docker compose up -d --build
             EOF
-
+            
             if [ $? -eq 0 ]; then
               echo "Deployment successful. Exiting loop."
               break
