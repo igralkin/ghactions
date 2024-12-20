@@ -25,4 +25,3 @@ docker compose up
 Исходный репозиторий: https://github.com/KOBRASH/Education_modules
 
 
-
