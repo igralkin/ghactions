@@ -21,15 +21,6 @@ jobs:
           chmod 600 ~/.ssh/ghactions
           ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts || true
 
-      - name: Test SSH connection
-        run: |
-          for i in {1..5}; do
-            echo "Attempt $i to connect via SSH..."
-            ssh -v -i ~/.ssh/ghactions ${{ secrets.DEPLOY_USER }}@${{ secrets.HOST }} "echo 'SSH connection successful'" && break
-            echo "SSH connection failed. Retrying in 30 seconds..."
-            sleep 30
-          done
-
       - name: Deploy application
         run: |
           for i in {1..5}; do
