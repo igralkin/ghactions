@@ -27,7 +27,7 @@ jobs:
             echo "Attempt $i to deploy application..."
             ssh -v -i ~/.ssh/ghactions ${{ secrets.DEPLOY_USER }}@${{ secrets.HOST }}
             set -e
-            mkdir -p ${{ secrets.DEPLOY_PATH }}
+            sudo mkdir -p ${{ secrets.DEPLOY_PATH }}
             cd ${{ secrets.DEPLOY_PATH }}
             
             if [ ! -d ".git" ]; then
