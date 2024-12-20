@@ -23,7 +23,7 @@ jobs:
 
       - name: Deploy application
         run: |
-          ssh -i ~/.ssh/ghactions ${{ secrets.DEPLOY_USER }}@${{ secrets.HOST }} << 'EOF' || exit 1
+          ssh -v -i ~/.ssh/ghactions ${{ secrets.DEPLOY_USER }}@${{ secrets.HOST }} << 'EOF' || exit 1
           set -e
           mkdir -p ${{ secrets.DEPLOY_PATH }}
           cd ${{ secrets.DEPLOY_PATH }}
