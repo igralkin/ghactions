@@ -23,31 +23,47 @@ jobs:
 
       - name: Test SSH connection
         run: |
-          ssh -v -i ~/.ssh/ghactions ${{ secrets.DEPLOY_USER }}@${{ secrets.HOST }} "echo 'SSH connection successful'"
+          for i in {1..5}; do
+            echo "Attempt $i to connect via SSH..."
+            ssh -v -i ~/.ssh/ghactions ${{ secrets.DEPLOY_USER }}@${{ secrets.HOST }} "echo 'SSH connection successful'" && break
+            echo "SSH connection failed. Retrying in 30 seconds..."
+            sleep 30
+          done
 
       - name: Deploy application
         run: |
-          ssh -v -i ~/.ssh/ghactions ${{ secrets.DEPLOY_USER }}@${{ secrets.HOST }} << EOF
-          set -e
-          mkdir -p ${{ secrets.DEPLOY_PATH }}
-          cd ${{ secrets.DEPLOY_PATH }}
-          
-          if [ ! -d ".git" ]; then
-            echo "Initializing new Git repository for ${{ secrets.REPOSITORY_URL }}"
-            git init
-            git remote add origin ${{ secrets.REPOSITORY_URL }}
-            git pull origin main
-          else
-            echo "Git repository ${{ secrets.REPOSITORY_URL }} found, pulling latest changes..."
-            git pull origin main
-          fi
+          for i in {1..5}; do
+            echo "Attempt $i to deploy application..."
+            ssh -v -i ~/.ssh/ghactions ${{ secrets.DEPLOY_USER }}@${{ secrets.HOST }} << EOF
+            set -e
+            mkdir -p ${{ secrets.DEPLOY_PATH }}
+            cd ${{ secrets.DEPLOY_PATH }}
 
-          DB_USER=${{ secrets.DB_USER }} \
-          DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-          DB_NAME=${{ secrets.DB_NAME }} \
-          docker compose down || true
-          DB_USER=${{ secrets.DB_USER }} \
-          DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-          DB_NAME=${{ secrets.DB_NAME }} \
-          docker compose up -d --build
-          EOF
+            if [ ! -d ".git" ]; then
+              echo "Initializing new Git repository for ${{ secrets.REPOSITORY_URL }}"
+              git init
+              git remote add origin ${{ secrets.REPOSITORY_URL }}
+              git pull origin main
+            else
+              echo "Git repository ${{ secrets.REPOSITORY_URL }} found, pulling latest changes..."
+              git pull origin main
+            fi
+
+            DB_USER=${{ secrets.DB_USER }} \
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            DB_NAME=${{ secrets.DB_NAME }} \
+            docker compose down || true
+            DB_USER=${{ secrets.DB_USER }} \
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            DB_NAME=${{ secrets.DB_NAME }} \
+            docker compose up -d --build
+            EOF
+
+            if [ $? -eq 0 ]; then
+              echo "Deployment successful. Exiting loop."
+              break
+            fi
+
+            echo "Deployment failed. Retrying in 30 seconds..."
+            sleep 30
+          done
