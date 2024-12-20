@@ -34,7 +34,7 @@ jobs:
         run: |
           for i in {1..5}; do
             echo "Attempt $i to deploy application..."
-            ssh -v -i ~/.ssh/ghactions ${{ secrets.DEPLOY_USER }}@${{ secrets.HOST }}
+            ssh -v -i ~/.ssh/ghactions ${{ secrets.DEPLOY_USER }}@${{ secrets.HOST }} << EOF
             set -e
             mkdir -p ${{ secrets.DEPLOY_PATH }}
             cd ${{ secrets.DEPLOY_PATH }}
