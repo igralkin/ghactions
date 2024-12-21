@@ -9,6 +9,7 @@ services:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
+      - SECRET_KEY=${SECRET_KEY}
     volumes:
       - pg_data:/var/lib/postgresql/data/pgdata
     ports:

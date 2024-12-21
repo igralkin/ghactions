@@ -95,6 +95,7 @@ DATABASES = {
         'PASSWORD': os.getenv('DB_PASSWORD'),
         'HOST': os.getenv('DB_HOST', 'db'),
         'PORT': os.getenv('DB_PORT', '5432'),
+        'SECRET_KEY': os.getenv('SECRET_KEY', 'pass'),
     }
 }
 
