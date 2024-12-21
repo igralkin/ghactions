@@ -82,7 +82,7 @@ jobs:
         run: |
           .\venv\Scripts\activate
           python manage.py test
-          
+
   build-test-macos:
     runs-on: macos-latest
     steps:
@@ -94,6 +94,17 @@ jobs:
           brew install postgresql
           brew services start postgresql
           export PATH="/usr/local/opt/postgresql/bin:$PATH"
+
+      - name: Set up PostgreSQL user and database
+        run: |
+          export PATH="/usr/local/opt/postgresql/bin:$PATH"
+          psql -c "CREATE USER test_user WITH PASSWORD 'test_password';"
+          psql -c "CREATE DATABASE test_db OWNER test_user;"
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
 
       - name: Upgrade pip
         run: |
@@ -108,7 +119,7 @@ jobs:
 
       - name: Wait for PostgreSQL
         run: |
-          until pg_isready -h localhost; do
+          until pg_isready -h localhost -U test_user -d test_db; do
             echo "Waiting for PostgreSQL to be ready..."
             sleep 5
           done
@@ -124,6 +135,7 @@ jobs:
         run: |
           source venv/bin/activate
           python manage.py test
+
         
   deploy:
     name: Deploy to Server
