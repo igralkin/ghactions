@@ -11,14 +11,19 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
+        
       - name: Install PostgreSQL
         run: |
           choco install postgresql -y
           choco install postgresql17 -y
           $env:PATH += ";C:\Program Files\PostgreSQL\17\bin"
           refreshenv
-          psql --version
+          & "C:\Program Files\PostgreSQL\17\bin\psql" --version
+
+      - name: Reset PostgreSQL password
+        run: |
+          $env:PATH += ";C:\Program Files\PostgreSQL\17\bin"
+          & "C:\Program Files\PostgreSQL\17\bin\psql" -U postgres -c "ALTER USER postgres PASSWORD 'admin';"
 
       - name: Set up PostgreSQL user and database
         shell: pwsh
