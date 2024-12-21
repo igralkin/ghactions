@@ -26,11 +26,11 @@ jobs:
 
       - name: Deploy application
         run: |
-          ssh -v -i ghactions root@5.45.127.218 << EOF
+          ssh -v -i ~/.ssh/ghactions ${{ secrets.DEPLOY_USER }}@${{ secrets.HOST }} << EOF
           set -e
           echo "Starting connection..."
           mkdir -p /var/www/ghactions
-          sudo chown root:root /var/www/ghactions
+          sudo chown ${{ secrets.DEPLOY_USER }}:${{ secrets.DEPLOY_USER }} /var/www/ghactions
           cd /var/www/ghactions
           if [ ! -d ".git" ]; then
             echo "Initializing new Git repository for git@github.com:igralkin/ghactions.git"
