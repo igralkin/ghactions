@@ -26,31 +26,25 @@ jobs:
 
       - name: Deploy application
         run: |
-          for i in {1..5}; do
-            ssh -v -i ~/.ssh/ghactions ${{ secrets.DEPLOY_USER }}@${{ secrets.HOST }} << EOF
-            set -e
-            echo "Starting connection..."
-            mkdir -p ${{ secrets.DEPLOY_PATH }}
-            sudo chown ${{ secrets.DEPLOY_USER }}:${{ secrets.DEPLOY_USER }} ${{ secrets.DEPLOY_PATH }}
-            cd ${{ secrets.DEPLOY_PATH }}
-            if [ ! -d ".git" ]; then
-              echo "Initializing new Git repository for ${{ secrets.REPOSITORY_URL }}"
-              git init
-              git remote add origin ${{ secrets.REPOSITORY_URL }}
-              git pull origin main
-            else
-              echo "Git repository ${{ secrets.REPOSITORY_URL }} found, pulling latest changes..."
-              git pull origin main
-            fi
-            docker compose down
-            docker compose up -d --build
-            echo "Finishing connection..."
-            exit
-            EOF
-            if [ $? -eq 0 ]; then
-              echo "Deployment successful. Exiting loop."
-              break
-            fi
-            echo "Deployment failed. Retrying in 30 seconds..."
-            sleep 30
-          done
+          ssh -v -i ~/.ssh/ghactions ${{ secrets.DEPLOY_USER }}@${{ secrets.HOST }} << EOF
+          set -e
+          echo "Starting connection..."
+          mkdir -p ${{ secrets.DEPLOY_PATH }}
+          sudo chown ${{ secrets.DEPLOY_USER }}:${{ secrets.DEPLOY_USER }} ${{ secrets.DEPLOY_PATH }}
+          cd ${{ secrets.DEPLOY_PATH }}
+          if [ ! -d ".git" ]; then
+            echo "Initializing new Git repository for ${{ secrets.REPOSITORY_URL }}"
+            git init
+            git remote add origin ${{ secrets.REPOSITORY_URL }}
+            git pull origin main
+          else
+            echo "Git repository ${{ secrets.REPOSITORY_URL }} found, pulling latest changes..."
+            git pull origin main
+          fi
+          docker compose down
+          docker compose up -d --build
+          echo "Finishing connection..."
+          sleep 10
+          exit
+          EOF
+
