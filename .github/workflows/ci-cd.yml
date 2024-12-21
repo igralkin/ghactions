@@ -19,6 +19,9 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/ghactions
           chmod 600 ~/.ssh/ghactions
+          # Очистка устаревших ключей
+          ssh-keygen -R ${{ secrets.HOST }} || true
+          # Добавление ключа сервера
           ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts || true
 
       - name: Deploy application
