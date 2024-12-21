@@ -18,7 +18,7 @@ parso
 pexpect
 pillow
 prompt-toolkit
-psycopg2
+psycopg2-binary
 ptyprocess
 pure-eval
 Pygments
