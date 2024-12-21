@@ -65,12 +65,14 @@ jobs:
 
       - name: Install PostgreSQL
         run: |
-          choco install postgresql --version=15.1 -y
+          choco install postgresql -y
           setx /M PATH "%PATH%;C:\Program Files\PostgreSQL\15\bin"
-          net start postgresql-x64-15
+          net start postgresql-x64-15 || true
 
       - name: Set up PostgreSQL user and database
+        shell: pwsh
         run: |
+          $env:PGPASSWORD = "admin" # Установите пароль для postgres
           psql -U postgres -c "CREATE USER test_user WITH PASSWORD 'test_password';"
           psql -U postgres -c "ALTER USER test_user CREATEDB;"
           psql -U postgres -c "CREATE DATABASE test_db OWNER test_user;"
