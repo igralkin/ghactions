@@ -8,18 +8,43 @@ on:
 jobs:
   build-test-ubuntu:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15.1-alpine
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U test_user -d test_db"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: 3.9
+
       - name: Install dependencies
         run: |
           python -m venv venv
           source venv/bin/activate
           pip install --no-cache-dir -r requirements.txt
+
+      - name: Wait for PostgreSQL
+        run: |
+          until pg_isready -h localhost -U test_user -d test_db; do
+            echo "Waiting for PostgreSQL to be ready..."
+            sleep 5
+          done
+
       - name: Run tests
         env:
           DB_NAME: test_db
