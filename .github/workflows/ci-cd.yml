@@ -29,16 +29,16 @@ jobs:
           ssh -v -i ~/.ssh/ghactions ${{ secrets.DEPLOY_USER }}@${{ secrets.HOST }} << EOF
           set -e
           echo "Starting connection..."
-          mkdir -p /var/www/ghactions
-          sudo chown ${{ secrets.DEPLOY_USER }}:${{ secrets.DEPLOY_USER }} /var/www/ghactions
-          cd /var/www/ghactions
+          mkdir -p ${{ secrets.DEPLOY_PATH }}
+          sudo chown ${{ secrets.DEPLOY_USER }}:${{ secrets.DEPLOY_USER }} ${{ secrets.DEPLOY_PATH }}
+          cd ${{ secrets.DEPLOY_PATH }}
           if [ ! -d ".git" ]; then
-            echo "Initializing new Git repository for git@github.com:igralkin/ghactions.git"
+            echo "Initializing new Git repository for ${{ secrets.REPOSITORY_URL }}"
             git init
-            git remote add origin git@github.com:igralkin/ghactions.git
+            git remote add origin ${{ secrets.REPOSITORY_URL }}
             git pull origin main
           else
-            echo "Git repository git@github.com:igralkin/ghactions.git found, pulling latest changes..."
+            echo "Git repository ${{ secrets.REPOSITORY_URL }} found, pulling latest changes..."
             git pull origin main
           fi
           docker compose down
