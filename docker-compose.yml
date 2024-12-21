@@ -1,12 +1,36 @@
 services:
-  flask_app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "5000:5000" # Пробрасываем порт 5000 на хост-машину
-    volumes:
-      - .:/app # Монтируем локальные файлы в контейнер для удобства разработки
+
+  db:
+    image: postgres:15.1-alpine
+    env_file:
+      - .env
     environment:
-      FLASK_ENV: development # Устанавливаем переменную окружения для Flask
-    command: python app.py # Команда для запуска Flask-приложения
+      - PGDATA=/var/lib/postgresql/data/pgdata
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - SECRET_KEY=${SECRET_KEY}
+    volumes:
+      - pg_data:/var/lib/postgresql/data/pgdata
+    ports:
+      - '15432:5432'
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    tty: true
+    command: sh -c 'sleep 10 && python3 manage.py migrate && python3 manage.py runserver 0.0.0.0:8000'
+    volumes:
+      - .:/code
+    ports:
+      - '18000:8000'
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pg_data:

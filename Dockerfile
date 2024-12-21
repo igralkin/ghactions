@@ -1,17 +1,10 @@
-# Базовый образ
-FROM python:3.9-slim
+FROM python:3
 
-# Устанавливаем рабочую директорию
-WORKDIR /app
+WORKDIR /code
 
-# Копируем файлы проекта в контейнер
-COPY . /app
+COPY ./requirements.txt /code/
 
-# Устанавливаем зависимости
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -r /code/requirements.txt
 
-# Указываем порт, который будет использовать приложение
-EXPOSE 5000
+COPY . .
 
-# Команда для запуска приложения
-CMD ["python", "app.py"]
