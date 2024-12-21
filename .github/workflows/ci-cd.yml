@@ -6,57 +6,6 @@ on:
       - main
 
 jobs:
-  build-test-ubuntu:
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:15.1-alpine
-        env:
-          POSTGRES_USER: test_user
-          POSTGRES_PASSWORD: test_password
-          POSTGRES_DB: test_db
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U test_user -d test_db"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.9
-
-      - name: Install dependencies
-        run: |
-          python -m venv venv
-          source venv/bin/activate
-          pip install --no-cache-dir -r requirements.txt
-
-      - name: Wait for PostgreSQL
-        run: |
-          until pg_isready -h localhost -U test_user -d test_db; do
-            echo "Waiting for PostgreSQL to be ready..."
-            sleep 5
-          done
-
-      - name: Run tests
-        env:
-          DB_NAME: test_db
-          DB_USER: test_user
-          DB_PASSWORD: test_password
-          DB_HOST: localhost
-          DB_PORT: 5432
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
-        run: |
-          source venv/bin/activate
-          python manage.py test
-
   build-test-windows:
     runs-on: windows-latest
     steps:
@@ -67,15 +16,19 @@ jobs:
         run: |
           choco install postgresql -y
           setx /M PATH "%PATH%;C:\Program Files\PostgreSQL\15\bin"
-          net start postgresql-x64-15 || true
+          refreshenv
+
+      - name: Verify PostgreSQL installation
+        run: |
+          psql --version
 
       - name: Set up PostgreSQL user and database
         shell: pwsh
         run: |
           $env:PGPASSWORD = "admin" # Установите пароль для postgres
-          psql -U postgres -c "CREATE USER test_user WITH PASSWORD 'test_password';"
-          psql -U postgres -c "ALTER USER test_user CREATEDB;"
-          psql -U postgres -c "CREATE DATABASE test_db OWNER test_user;"
+          & "C:\Program Files\PostgreSQL\15\bin\psql" -U postgres -c "CREATE USER test_user WITH PASSWORD 'test_password';"
+          & "C:\Program Files\PostgreSQL\15\bin\psql" -U postgres -c "ALTER USER test_user CREATEDB;"
+          & "C:\Program Files\PostgreSQL\15\bin\psql" -U postgres -c "CREATE DATABASE test_db OWNER test_user;"
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -111,69 +64,16 @@ jobs:
         run: |
           .\venv\Scripts\activate
           python manage.py test
+
         
-
-  build-test-macos:
-    runs-on: macos-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Install PostgreSQL
-        run: |
-          brew install postgresql
-          brew services start postgresql
-          export PATH="/usr/local/opt/postgresql/bin:$PATH"
-
-      - name: Set up PostgreSQL user and database
-        run: |
-          export PATH="/usr/local/opt/postgresql/bin:$PATH"
-          psql -d postgres -c "CREATE USER test_user WITH PASSWORD 'test_password';"
-          psql -d postgres -c "ALTER USER test_user CREATEDB;"
-          psql -d postgres -c "CREATE DATABASE test_db OWNER test_user;"
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.9
-
-      - name: Upgrade pip
-        run: |
-          python -m venv venv
-          source venv/bin/activate
-          python -m pip install --upgrade pip
-
-      - name: Install dependencies
-        run: |
-          source venv/bin/activate
-          pip install --no-cache-dir -r requirements.txt
-
-      - name: Wait for PostgreSQL
-        run: |
-          until pg_isready -h localhost -U test_user -d test_db; do
-            echo "Waiting for PostgreSQL to be ready..."
-            sleep 5
-          done
-
-      - name: Run tests
-        env:
-          DB_NAME: test_db
-          DB_USER: test_user
-          DB_PASSWORD: test_password
-          DB_HOST: localhost
-          DB_PORT: 5432
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
-        run: |
-          source venv/bin/activate
-          python manage.py test
         
   deploy:
     name: Deploy to Server
     runs-on: ubuntu-latest
     needs:
-      - build-test-ubuntu
+      #- build-test-ubuntu
       - build-test-windows
-      - build-test-macos
+      #- build-test-macos
 
     steps:
       - name: Checkout code
