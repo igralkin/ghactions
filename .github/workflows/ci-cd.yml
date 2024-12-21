@@ -68,6 +68,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Install Docker
+        run: |
+          curl -fsSL https://get.docker.com -o get-docker.sh
+          sh get-docker.sh
+          sudo usermod -aG docker $USER
+
       - name: Configure SSH
         run: |
           mkdir -p ~/.ssh
