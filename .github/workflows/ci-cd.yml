@@ -28,6 +28,11 @@ jobs:
 
       - name: Run tests
         env:
+          DB_NAME: test_db
+          DB_USER: test_user
+          DB_PASSWORD: test_password
+          DB_HOST: localhost
+          DB_PORT: 5432
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
         run: |
           python manage.py test
