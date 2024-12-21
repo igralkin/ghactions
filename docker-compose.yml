@@ -1,0 +1,12 @@
+services:
+  flask_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000" # Пробрасываем порт 5000 на хост-машину
+    volumes:
+      - .:/app # Монтируем локальные файлы в контейнер для удобства разработки
+    environment:
+      FLASK_ENV: development # Устанавливаем переменную окружения для Flask
+    command: python app.py # Команда для запуска Flask-приложения
