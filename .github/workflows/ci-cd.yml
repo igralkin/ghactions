@@ -99,6 +99,7 @@ jobs:
         run: |
           export PATH="/usr/local/opt/postgresql/bin:$PATH"
           psql -d postgres -c "CREATE USER test_user WITH PASSWORD 'test_password';"
+          psql -d postgres -c "ALTER USER test_user CREATEDB;"
           psql -d postgres -c "CREATE DATABASE test_db OWNER test_user;"
 
       - name: Set up Python
