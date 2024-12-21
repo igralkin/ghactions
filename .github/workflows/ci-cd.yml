@@ -6,33 +6,20 @@ on:
       - main
 
 jobs:
-  build-test:
-    name: Build and Test on Multiple OS
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
-
+  build-test-ubuntu:
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: 3.9
-
       - name: Install dependencies
         run: |
-          if [ "${{ matrix.os }}" == "windows-latest" ]; then
-            python -m venv venv
-            .\venv\Scripts\activate
-          else
-            python -m venv venv
-            source ./venv/bin/activate
-          fi
+          python -m venv venv
+          source venv/bin/activate
           pip install --no-cache-dir -r requirements.txt
-
       - name: Run tests
         env:
           DB_NAME: test_db
@@ -42,17 +29,68 @@ jobs:
           DB_PORT: 5432
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
         run: |
-          if [ "${{ matrix.os }}" == "windows-latest" ]; then
-            .\venv\Scripts\activate
-          else
-            source ./venv/bin/activate
-          fi
+          source venv/bin/activate
+          python manage.py test
+
+  build-test-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+      - name: Install dependencies
+        run: |
+          python -m venv venv
+          .\venv\Scripts\activate
+          pip install --no-cache-dir -r requirements.txt
+      - name: Run tests
+        env:
+          DB_NAME: test_db
+          DB_USER: test_user
+          DB_PASSWORD: test_password
+          DB_HOST: localhost
+          DB_PORT: 5432
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        run: |
+          .\venv\Scripts\activate
+          python manage.py test
+
+  build-test-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+      - name: Install dependencies
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install --no-cache-dir -r requirements.txt
+      - name: Run tests
+        env:
+          DB_NAME: test_db
+          DB_USER: test_user
+          DB_PASSWORD: test_password
+          DB_HOST: localhost
+          DB_PORT: 5432
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        run: |
+          source venv/bin/activate
           python manage.py test
 
   deploy:
     name: Deploy to Server
     runs-on: ubuntu-latest
-    needs: build-test
+    needs:
+      - build-test-ubuntu
+      - build-test-windows
+      - build-test-macos
 
     steps:
       - name: Checkout code
