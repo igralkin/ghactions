@@ -26,32 +26,23 @@ jobs:
 
       - name: Deploy application
         run: |
-          for i in {1..5}; do
-            ssh -v -i ghactions root@5.45.127.218 << EOF
-            set -e
-            echo "Starting connection..."
-            mkdir -p /var/www/ghactions
-            sudo chown root:root /var/www/ghactions
-            cd /var/www/ghactions
-            if [ ! -d ".git" ]; then
-              echo "Initializing new Git repository for git@github.com:igralkin/ghactions.git"
-              git init
-              git remote add origin git@github.com:igralkin/ghactions.git
-              git pull origin main
-            else
-              echo "Git repository git@github.com:igralkin/ghactions.git found, pulling latest changes..."
-              git pull origin main
-            fi
-            docker compose down
-            docker compose up -d --build
-            echo "Finishing connection..."
-            EOF
-
-            if [ $? -eq 0 ]; then
-              echo "Deployment successful. Exiting loop."
-              break
-            fi
-
-            echo "Deployment failed. Retrying in 60 seconds..."
-            sleep 60
-          done
+          ssh -v -i ghactions root@5.45.127.218 << EOF
+          set -e
+          echo "Starting connection..."
+          mkdir -p /var/www/ghactions
+          sudo chown root:root /var/www/ghactions
+          cd /var/www/ghactions
+          if [ ! -d ".git" ]; then
+            echo "Initializing new Git repository for git@github.com:igralkin/ghactions.git"
+            git init
+            git remote add origin git@github.com:igralkin/ghactions.git
+            git pull origin main
+          else
+            echo "Git repository git@github.com:igralkin/ghactions.git found, pulling latest changes..."
+            git pull origin main
+          fi
+          docker compose down
+          docker compose up -d --build
+          echo "Finishing connection..."
+          exit
+          EOF
