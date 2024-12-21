@@ -41,7 +41,13 @@ jobs:
             echo "Git repository ${{ secrets.REPOSITORY_URL }} found, pulling latest changes..."
             git pull origin main
           fi
+          DB_USER=${{ secrets.DB_USER }} \
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+          DB_NAME=${{ secrets.DB_NAME }} \
           docker compose down
+          DB_USER=${{ secrets.DB_USER }} \
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+          DB_NAME=${{ secrets.DB_NAME }} \
           docker compose up -d --build
           echo "Finishing connection..."
           sleep 10
