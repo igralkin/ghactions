@@ -15,35 +15,29 @@ jobs:
       - name: Install PostgreSQL
         run: |
           choco install postgresql -y
-          setx /M PATH "%PATH%;C:\Program Files\PostgreSQL\15\bin"
+          choco install postgresql17 -y
+          $env:PATH += ";C:\Program Files\PostgreSQL\17\bin"
           refreshenv
-
-      - name: Verify PostgreSQL installation
-        run: |
           psql --version
 
       - name: Set up PostgreSQL user and database
         shell: pwsh
         run: |
-          $env:PGPASSWORD = "admin" # Установите пароль для postgres
-          & "C:\Program Files\PostgreSQL\15\bin\psql" -U postgres -c "CREATE USER test_user WITH PASSWORD 'test_password';"
-          & "C:\Program Files\PostgreSQL\15\bin\psql" -U postgres -c "ALTER USER test_user CREATEDB;"
-          & "C:\Program Files\PostgreSQL\15\bin\psql" -U postgres -c "CREATE DATABASE test_db OWNER test_user;"
+          $env:PGPASSWORD = "admin"
+          & "C:\Program Files\PostgreSQL\17\bin\psql" -U postgres -c "CREATE USER test_user WITH PASSWORD 'test_password';"
+          & "C:\Program Files\PostgreSQL\17\bin\psql" -U postgres -c "ALTER USER test_user CREATEDB;"
+          & "C:\Program Files\PostgreSQL\17\bin\psql" -U postgres -c "CREATE DATABASE test_db OWNER test_user;"
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: 3.9
 
-      - name: Upgrade pip
+      - name: Install Python dependencies
         run: |
           python -m venv venv
           .\venv\Scripts\activate
           python -m pip install --upgrade pip
-
-      - name: Install dependencies
-        run: |
-          .\venv\Scripts\activate
           pip install --no-cache-dir -r requirements.txt
 
       - name: Wait for PostgreSQL
@@ -65,7 +59,6 @@ jobs:
           .\venv\Scripts\activate
           python manage.py test
 
-        
         
   deploy:
     name: Deploy to Server
